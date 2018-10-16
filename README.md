@@ -1,1 +1,2 @@
 # exploring-numerical-methods
+This is a repository were I am working the examples on http://hplgit.github.io/num-methods-for-PDEs/doc/pub/diffu/sphinx/index.html and trying to learn more about numerical approximations and plotting using numpy and matplotlib
