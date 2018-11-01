@@ -1,5 +1,22 @@
 """
 This file was inspired by this paper:  http://www.math.mcgill.ca/gantumur/docs/reps/RyanSicilianoHH.pdf
+
+About this File:
+This file contains definitions for functions which approximate
+the solution to a differential using various different methods
+(currently only two).
+
+The results of these approximations are then compared with an
+exact solution. Next, the accuracy of the different methods, and
+how this accuracy depends on step size is analyzed
+
+Current Issues:
+* RK4 should be more accurate than Euler's but they or of the same
+  order, with RK4 having consistently higher error. This is probably
+  due to an implementation error in the 'rk4' function
+
+Next Step:
+* Implement ADAMS-BASHFORTH-MOULTON PREDICTOR-CORRECTOR METHOD
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -56,26 +73,34 @@ Nt = math.floor(T/dt)
 
 # Figure to show approximations
 plt.figure()
-# plt.subplots_adjust(hspace=0.5)
+plt.subplots_adjust(hspace=0.5)
 t = np.linspace(0, T, Nt)
 
 # Plot euler approximation
 x_euler = forward_euler(dx_dt, dt, Nt)
-# plt.subplot(221)
-# plt.title("Forward euler's method")
+plt.subplot(221)
+plt.title("Forward euler's method")
 plt.plot(t, x_euler, color="blue")
 
 # plot rk4 approximation
 x_rk4 = rk4(dx_dt, dt, Nt)
-# plt.subplot(222)
-# plt.title("Fourth-order Runge-Kutta")
+plt.subplot(222)
+plt.title("Fourth-order Runge-Kutta")
 plt.plot(t, x_rk4, color="red")
 
 # plot rk4 approximation
 x_exact = x_t(t)
-# plt.subplot(223)
-# plt.title("Exact Solution")
+plt.subplot(223)
+plt.title("Exact Solution")
 plt.plot(t, x_exact, color="orange")
+
+# Plot comparison
+plt.subplot(224)
+plt.title("Comparison")
+plt.plot(t, x_euler, label="Euler", color="blue")
+plt.plot(t, x_rk4, label="RK4", color="red")
+plt.plot(t, x_exact, label="exact", color="orange")
+plt.legend()
 plt.show()
 
 #------------------Error Analysis------------------
