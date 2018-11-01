@@ -13,10 +13,6 @@ heat v. displacement along a rod as it changes over time. The first animation us
 an explicit/forward Euler scheme to approximate the state while the second uses
 an implicit/backwards Euler scheme.
 
-Unresolved Issues:
-Simulations using forwards and backwards methods appear to be identical except
-for the fact that they run at different speeds
-
 Things to explore:
 * Change initial condition function
     * Discontiuous intitial conditions
@@ -35,7 +31,6 @@ gamma = 0.05 # constant describing rate of diffusion (higher is faster)
 
 # Initialize variables
 Nx = 100 # total number of differential pieces
-u = np.zeros(Nx+1)
 u_1 = np.zeros(Nx+1)
 x = np.linspace(0, L, Nx+1)
 
@@ -43,7 +38,7 @@ x = np.linspace(0, L, Nx+1)
 dt = 0.001
 dx = x[1]-x[0]
 
-# F dictate the size of the step taken on each iteration
+# F dictates the size of the step taken on each iteration
 F = (dt*gamma)/(dx**2)
 def initial_condition(x):
     """Function which returns the initial heat at a given position x"""
@@ -54,21 +49,22 @@ def initial_condition(x):
 
 ## Forward Euler
 def forward_euler():
-    # get variables from top-level
-    global u, u_1
-
+    global u_1
     # set up initial condition
     for i in range(0, Nx+1):
         u_1[i] = initial_condition(x[i])
 
     # initialize plot
     fig = plt.figure()
+    plt.title("Diffusion computed using forward Euler's method")
+    plt.xlabel("X")
+    plt.ylabel("Temperature")
     line, = plt.plot(x, u_1)
 
     def update(t):
         """Updates plot using Forward Euler"""
-        # get state of previous frame
         global u_1
+        u = np.zeros(Nx+1)
 
         # apply Euler's at each point
         for i in range(1, Nx):
@@ -94,14 +90,9 @@ def forward_euler():
 
 forward_euler()
 
-# reset u and u_1
-u = np.zeros(Nx+1)
-u_1 = np.zeros(Nx+1)
-
-
 def backwards_euler():
     # get variables from top-level
-    global u, u_1
+    global u_1
 
     # initialize variables from algorithm
     A = np.zeros((Nx+1, Nx+1))
@@ -120,18 +111,20 @@ def backwards_euler():
 
     # initialize plot
     fig = plt.figure()
+    plt.title("Diffusion computed using backwards Euler's method")
+    plt.xlabel("X")
+    plt.ylabel("Temperature")
     line, = plt.plot(x, u_1)
     
     def update(t):
         """Updates plot using Forward Euler"""
         # get state of previous fram
         global u_1
-        
         # enforce boundary conditions
         u_1[0] = u_1[Nx] = 0
 
         # solve system
-        u[:] = scipy.linalg.solve(A, u_1)
+        u = scipy.linalg.solve(A, u_1)
         
         # increment steps
         u_1 = u
