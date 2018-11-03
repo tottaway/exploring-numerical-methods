@@ -1,5 +1,6 @@
 """
 This file was inspired by this paper:  http://www.math.mcgill.ca/gantumur/docs/reps/RyanSicilianoHH.pdf
+some stylistic features where taken from https://www.youtube.com/watch?v=IOkwWYaZbck
 
 About this File:
 This file contains definitions for functions which approximate
@@ -21,79 +22,71 @@ from scipy import stats
 import matplotlib.pyplot as plt
 import math
 
-#------------------Function definitions------------------
+#------------------Function and constant definitions------------------
 def dx_dt(x, t):
     """Derivative of x with respect to time"""
     # return 1
     # return x
     # return 3 * t**2
-    return 2*np.exp(-5*t) - 4*x
-    # return np.cos(2*np.pi*t)
+    # return 2*np.exp(-5*t) - 4*x
+    return np.cos(2*np.pi*t)
 
 def x_t(t):
     # return t
     # return np.exp(t)
     # return t**3
-    return -2*np.exp(-5*t) + 3*np.exp(-4*t)
-    # return (1/(2*np.pi)) * np.sin(2*np.pi*t)
+    # return -2*np.exp(-5*t) + 3*np.exp(-4*t)
+    return (1/(2*np.pi)) * np.sin(2*np.pi*t)
 
-x0 = 1
-
-def forward_euler(f, h, Nt, x0):
-    x_1 = x0
-    x = np.zeros(Nt)
-    x[0] = x_1
-
-    for t in range(1, Nt):
-        # midpoint_height = x_1 + (h/2)*f(x_1, t*h)
-        # delta_x = h * f(midpoint_height, (t+0.5)*h)
-
-        # end_height = x_1 + (h)*f(x_1, t*h)
-        # delta_x = h/2 * (f(end_height, t*h) + f(x_1, t*h))
-
-        delta_x = h * f(x_1, t*h)
-
-        x[t] = x_1 + delta_x
-        x_1 = x[t]
-    
-    return x
-    
-def rk4(f, h, Nt, x0):
-    def k1(x_n, t):
-        """slope at startpoint"""
-        return f(x_n, t)
-
-    def k2(x_n, t, k_1):
-        """slope at midpoint (calculated from k1)"""
-        return f(x_n+(k_1*h)/2, t+(h/2))
-
-    def k3(x_n, t, k_2):
-        """slope at midpoint (claculated using k2)"""
-        return f(x_n+(k_2*h)/2, t+(h/2))
-    
-    def k4(x_n, t, k_3):
-        """slope at endpoint (caluculated using k3)"""
-        return f(x_n+k_3*h, t+h)
-
-    x_1 = x0
-    x = np.zeros(Nt)
-    x[0] = x_1
-    for t in range(1, Nt):
-        x_1 = x[t-1]
-        curr_t = t*h
-        k_1 = k1(x_1, curr_t)
-        k_2 = k2(x_1, curr_t, k_1)
-        k_3 = k3(x_1, curr_t, k_2)
-        k_4 = k4(x_1, curr_t, k_1)
-        delta_x = h/6 * (k_1 + 2*k_2 + 2*k_3 + k_4)
-        x[t] = x_1 + delta_x
-
-    return x
-
-#------------------Plot approximations------------------
+x0 = 0
 T = 1
 dt = 0.01
 Nt = math.floor(T/dt)
+
+def forward_euler(f, h, Nt, x0):
+    x = x0
+    X = []
+    time = np.linspace(0, T, Nt)
+
+    for t in time:
+        # midpoint_height = x_1 + (h/2)*f(x_1, t)
+        # delta_x = h * f(midpoint_height, t+(0.5*h))
+
+        # end_height = x_1 + (h)*f(x_1, t)
+        # delta_x = h/2 * (f(end_height, t) + f(x_1, t))
+
+        delta_x = h * f(x, t)
+        x += delta_x
+
+        X.append(x + delta_x)
+    
+    return X
+    
+def rk4(f, h, Nt, x0):
+    def RK4_step(y, t, dt):
+        k1 = f(y,t)
+        k2 = f(y+0.5*k1*dt, t+0.5*dt)
+        k3 = f(y+0.5*k2*dt, t+0.5*dt)
+        k4 = f(y+k3*dt, t+dt)
+
+        #return dt * G(y,t)
+        return dt * (k1 + 2*k2 + 2*k3 + k4) /6
+
+    x0 = 0.0
+
+    # initial state
+    x = x0
+    time = np.linspace(0, T, Nt)
+    X = []
+
+    # time-stepping solution
+    for t in time:
+        x = x + RK4_step(x, t, h) 
+        X.append(x)
+
+    return X
+
+#------------------Plot approximations------------------
 
 # Figure to show approximations
 plt.figure()
@@ -137,7 +130,7 @@ h = np.logspace(-3, -1, Nh)
 euler_error = np.zeros(Nh)
 rk4_error = np.zeros(Nh)
 for i, dt in enumerate(h):
-    Nt = math.ceil(T/dt)
+    Nt = math.floor(T/dt)
     t = np.linspace(0, T, Nt)
     dt = t[1]-t[0]
     exact = x_t(t)
