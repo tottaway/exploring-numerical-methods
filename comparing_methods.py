@@ -11,7 +11,7 @@ exact solution. Next, the accuracy of the different methods, and
 how this accuracy depends on step size is analyzed
 
 Current Issues:
-* RK4 still performing slightly worse that O(h)
+* All methods are of order 1 when ODE is not autonomous
 
 Next Step:
 * Implement ADAMS-BASHFORTH-MOULTON PREDICTOR-CORRECTOR METHOD
@@ -26,18 +26,22 @@ def dx_dt(x, t):
     """Derivative of x with respect to time"""
     # return 1
     # return x
-    # return 3 * t**2
+    # return -5*x
+    return 2*x*t
+    # return 6 * t**5
     # return 2*np.exp(-5*t) - 4*x
-    return np.cos(2*np.pi*t)
+    # return -np.sin(t)
 
 def x_t(t):
     # return t
     # return np.exp(t)
-    # return t**3
-    # return -2*np.exp(-5*t) + 3*np.exp(-4*t)
-    return (1/(2*np.pi)) * np.sin(2*np.pi*t)
+    # return np.exp(-5*t)
+    return np.exp(t**2)
+    # return t**6
+    # return np.exp(-5*t) * (4*np.exp(t) - 2)
+    # return np.cos(t)
 
-x0 = 0
+x0 = x_t(0)
 T = 1
 dt = 0.01
 Nt = math.floor(T/dt)
@@ -65,7 +69,7 @@ def trapezoid_method(f, h, Nt, x0):
         delta_x = h/2 * (f(end_height, t+h) + f(x, t))
         x += delta_x
 
-        X.append(x + delta_x)
+        X.append(x)
     
     return X
 
@@ -85,15 +89,12 @@ def heun(f, h, Nt, x0):
     return X
     
 def rk4(f, h, Nt, x0):
-    def RK4_step(y, t, dt):
-        k1 = f(y,t)
-        k2 = f(y+0.5*k1*dt, t+0.5*dt)
-        k3 = f(y+0.5*k2*dt, t+0.5*dt)
-        k4 = f(y+k3*dt, t+dt)
-
-        return dt * (k1 + 2*k2 + 2*k3 + k4) /6
-
-    x0 = 0.0
+    def RK4_step(x, t):
+        k1 = f(x,t)
+        k2 = f(x+0.5*k1*h, t+0.5*h)
+        k3 = f(x+0.5*k2*h, t+0.5*h)
+        k4 = f(x+k3*h, t+h)
+        return h * (k1 + 2*k2 + 2*k3 + k4) /6
 
     # initial state
     x = x0
@@ -102,7 +103,9 @@ def rk4(f, h, Nt, x0):
 
     # time-stepping solution
     for t in time:
-        x = x + RK4_step(x, t, h) 
+        delta_x = RK4_step(x, t) 
+        x += delta_x
+
         X.append(x)
 
     return X
