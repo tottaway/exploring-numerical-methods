@@ -27,18 +27,18 @@ def dx_dt(x, t):
     # return 1
     # return x
     # return -5*x
-    return 2*x*t
+    # return 2*x*t
     # return 6 * t**5
-    # return 2*np.exp(-5*t) - 4*x
+    return 2*np.exp(-5*t) - 4*x
     # return -np.sin(t)
 
 def x_t(t):
     # return t
     # return np.exp(t)
     # return np.exp(-5*t)
-    return np.exp(t**2)
+    # return np.exp(t**2)
     # return t**6
-    # return np.exp(-5*t) * (4*np.exp(t) - 2)
+    return np.exp(-5*t) * (4*np.exp(t) - 2)
     # return np.cos(t)
 
 x0 = x_t(0)
@@ -46,49 +46,57 @@ T = 1
 dt = 0.01
 Nt = math.floor(T/dt)
 
-def forward_euler(f, h, Nt, x0):
+def forward_euler(f, Nt, x0):
     x = x0
-    X = [x0]
-    time = np.linspace(0, T, Nt-1)
+    X = []
+    time = np.linspace(0, T, Nt)
+
+    h = time[1]
 
     for t in time:
+        X.append(x)
+        
         delta_x = h * f(x, t)
         x += delta_x
 
-        X.append(x)
     
     return X
 
-def trapezoid_method(f, h, Nt, x0):
+def trapezoid_method(f, Nt, x0):
     x = x0
-    X = [x0]
-    time = np.linspace(0, T, Nt-1)
+    X = []
+    time = np.linspace(0, T, Nt)
+
+    h = time[1]
 
     for t in time:
+        X.append(x)
+
         end_height = x + (h)*f(x, t)
         delta_x = h/2 * (f(end_height, t+h) + f(x, t))
         x += delta_x
 
-        X.append(x)
     
     return X
 
 
-def heun(f, h, Nt, x0):
+def heun(f, Nt, x0):
     x = x0
-    X = [x0]
-    time = np.linspace(0, T, Nt-1)
+    X = []
+    time = np.linspace(0, T, Nt)
+
+    h = time[1]
 
     for t in time:
+        X.append(x)
+        
         midpoint_height = x + (h/2)*f(x, t)
         delta_x = h * f(midpoint_height, t+(0.5*h))
         x += delta_x
-
-        X.append(x)
     
     return X
     
-def rk4(f, h, Nt, x0):
+def rk4(f, Nt, x0):
     def RK4_step(x, t):
         k1 = f(x,t)
         k2 = f(x+0.5*k1*h, t+0.5*h)
@@ -98,15 +106,16 @@ def rk4(f, h, Nt, x0):
 
     # initial state
     x = x0
-    time = np.linspace(0, T, Nt-1)
-    X = [x0]
+    X = []
+    time = np.linspace(0, T, Nt)
 
-    # time-stepping solution
+    h = time[1]
+
     for t in time:
+        X.append(x)
+
         delta_x = RK4_step(x, t) 
         x += delta_x
-
-        X.append(x)
 
     return X
 
@@ -116,10 +125,10 @@ def rk4(f, h, Nt, x0):
 plt.figure()
 t = np.linspace(0, T, Nt)
 
-x_euler = forward_euler(dx_dt, dt, Nt, x0)
-x_trap = trapezoid_method(dx_dt, dt, Nt, x0)
-x_heun = rk4(dx_dt, dt, Nt, x0)
-x_rk4 = rk4(dx_dt, dt, Nt, x0)
+x_euler = forward_euler(dx_dt, Nt, x0)
+x_trap = trapezoid_method(dx_dt, Nt, x0)
+x_heun = rk4(dx_dt, Nt, x0)
+x_rk4 = rk4(dx_dt, Nt, x0)
 x_exact = x_t(t)
 
 # Plot comparison
@@ -146,12 +155,11 @@ rk4_error = np.zeros(Nh)
 for i, dt in enumerate(h):
     Nt = math.floor(T/dt)
     t = np.linspace(0, T, Nt)
-    dt = t[1]-t[0]
     exact = x_t(t)
-    euler = forward_euler(dx_dt, dt, Nt, x0)
-    trap = trapezoid_method(dx_dt, dt, Nt, x0)
-    heun_res = heun(dx_dt, dt, Nt, x0)
-    rk = rk4(dx_dt, dt, Nt, x0)
+    euler = forward_euler(dx_dt, Nt, x0)
+    trap = trapezoid_method(dx_dt, Nt, x0)
+    heun_res = heun(dx_dt, Nt, x0)
+    rk = rk4(dx_dt, Nt, x0)
 
     euler_error[i] = np.mean(np.abs(euler-exact))
     trap_error[i] = np.mean(np.abs(trap-exact))
