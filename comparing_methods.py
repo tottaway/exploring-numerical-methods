@@ -4,8 +4,7 @@ some stylistic features where taken from https://www.youtube.com/watch?v=IOkwWYa
 
 About this File:
 This file contains definitions for functions which approximate
-the solution to a differential using various different methods
-(currently only two).
+the solution to a differential using various different methods.
 
 The results of these approximations are then compared with an
 exact solution. Next, the accuracy of the different methods, and
@@ -45,20 +44,43 @@ Nt = math.floor(T/dt)
 
 def forward_euler(f, h, Nt, x0):
     x = x0
-    X = []
-    time = np.linspace(0, T, Nt)
+    X = [x0]
+    time = np.linspace(0, T, Nt-1)
 
     for t in time:
-        # midpoint_height = x_1 + (h/2)*f(x_1, t)
-        # delta_x = h * f(midpoint_height, t+(0.5*h))
-
-        # end_height = x_1 + (h)*f(x_1, t)
-        # delta_x = h/2 * (f(end_height, t) + f(x_1, t))
-
         delta_x = h * f(x, t)
         x += delta_x
 
+        X.append(x)
+    
+    return X
+
+def trapezoid_method(f, h, Nt, x0):
+    x = x0
+    X = [x0]
+    time = np.linspace(0, T, Nt-1)
+
+    for t in time:
+        end_height = x + (h)*f(x, t)
+        delta_x = h/2 * (f(end_height, t+h) + f(x, t))
+        x += delta_x
+
         X.append(x + delta_x)
+    
+    return X
+
+
+def heun(f, h, Nt, x0):
+    x = x0
+    X = [x0]
+    time = np.linspace(0, T, Nt-1)
+
+    for t in time:
+        midpoint_height = x + (h/2)*f(x, t)
+        delta_x = h * f(midpoint_height, t+(0.5*h))
+        x += delta_x
+
+        X.append(x)
     
     return X
     
@@ -69,15 +91,14 @@ def rk4(f, h, Nt, x0):
         k3 = f(y+0.5*k2*dt, t+0.5*dt)
         k4 = f(y+k3*dt, t+dt)
 
-        #return dt * G(y,t)
         return dt * (k1 + 2*k2 + 2*k3 + k4) /6
 
     x0 = 0.0
 
     # initial state
     x = x0
-    time = np.linspace(0, T, Nt)
-    X = []
+    time = np.linspace(0, T, Nt-1)
+    X = [x0]
 
     # time-stepping solution
     for t in time:
@@ -90,33 +111,21 @@ def rk4(f, h, Nt, x0):
 
 # Figure to show approximations
 plt.figure()
-plt.subplots_adjust(hspace=0.5)
 t = np.linspace(0, T, Nt)
 
-# Plot euler approximation
 x_euler = forward_euler(dx_dt, dt, Nt, x0)
-plt.subplot(221)
-plt.title("Forward euler's method")
-plt.plot(t, x_euler, color="blue")
-
-# plot rk4 approximation
+x_trap = trapezoid_method(dx_dt, dt, Nt, x0)
+x_heun = rk4(dx_dt, dt, Nt, x0)
 x_rk4 = rk4(dx_dt, dt, Nt, x0)
-plt.subplot(222)
-plt.title("Fourth-order Runge-Kutta")
-plt.plot(t, x_rk4, color="red")
-
-# plot rk4 approximation
 x_exact = x_t(t)
-plt.subplot(223)
-plt.title("Exact Solution")
-plt.plot(t, x_exact, color="orange")
 
 # Plot comparison
-plt.subplot(224)
 plt.title("Comparison")
 plt.plot(t, x_euler, label="Euler", color="blue")
 plt.plot(t, x_rk4, label="RK4", color="red")
-plt.plot(t, x_exact, label="exact", color="orange")
+plt.plot(t, x_trap, label="Trapezoid", color="green")
+plt.plot(t, x_heun, label="Heun", color="orange")
+plt.plot(t, x_exact, label="exact", color="black")
 plt.legend()
 plt.show()
 
@@ -128,6 +137,8 @@ Nh = 100
 h = np.logspace(-3, -1, Nh)
 
 euler_error = np.zeros(Nh)
+trap_error = np.zeros(Nh)
+heun_error = np.zeros(Nh)
 rk4_error = np.zeros(Nh)
 for i, dt in enumerate(h):
     Nt = math.floor(T/dt)
@@ -135,20 +146,30 @@ for i, dt in enumerate(h):
     dt = t[1]-t[0]
     exact = x_t(t)
     euler = forward_euler(dx_dt, dt, Nt, x0)
+    trap = trapezoid_method(dx_dt, dt, Nt, x0)
+    heun_res = heun(dx_dt, dt, Nt, x0)
     rk = rk4(dx_dt, dt, Nt, x0)
 
     euler_error[i] = np.mean(np.abs(euler-exact))
+    trap_error[i] = np.mean(np.abs(trap-exact))
+    heun_error[i] = np.mean(np.abs(heun_res-exact))
     rk4_error[i] = np.mean(np.abs(rk-exact))
 
 # calculate log values
 euler_error_log = np.log10(euler_error)
+trap_error_log = np.log10(trap_error)
+heun_error_log = np.log10(heun_error)
 rk4_error_log = np.log10(rk4_error)
 h_log = np.log10(h)
 
 euler_slope, euler_intercept, euler_r_value, _, _ = stats.linregress(h_log, euler_error_log)
+trap_slope, trap_intercept, trap_r_value, _, _ = stats.linregress(h_log, trap_error_log)
+heun_slope, heun_intercept, heun_r_value, _, _ = stats.linregress(h_log, heun_error_log)
 rk4_slope, rk4_intercept, rk4_r_value, _, _ = stats.linregress(h_log, rk4_error_log)
 
 plt.plot(h_log, euler_error_log, color="blue", label=("Euler: Order=" + str(euler_slope)))
+plt.plot(h_log, trap_error_log, color="green", label=("Trapezoid: Order=" + str(trap_slope)))
+plt.plot(h_log, heun_error_log, color="orange", label=("Heun: Order=" + str(heun_slope)))
 plt.plot(h_log, rk4_error_log, color="red", label=("RK4:   Order=" + str(rk4_slope)))
 plt.ylabel("log(error)")
 plt.xlabel("log(h)")
