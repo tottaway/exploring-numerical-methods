@@ -10,9 +10,6 @@ The results of these approximations are then compared with an
 exact solution. Next, the accuracy of the different methods, and
 how this accuracy depends on step size is analyzed
 
-Current Issues:
-* All methods are of order 1 when ODE is not autonomous
-
 Next Step:
 * Implement ADAMS-BASHFORTH-MOULTON PREDICTOR-CORRECTOR METHOD
 """
@@ -25,25 +22,25 @@ import math
 def dx_dt(x, t):
     """Derivative of x with respect to time"""
     # return 1
-    # return x
+    return x
     # return -5*x
     # return 2*x*t
     # return 6 * t**5
-    return 2*np.exp(-5*t) - 4*x
+    # return 2*np.exp(-5*t) - 4*x
     # return -np.sin(t)
 
 def x_t(t):
     # return t
-    # return np.exp(t)
+    return np.exp(t)
     # return np.exp(-5*t)
     # return np.exp(t**2)
     # return t**6
-    return np.exp(-5*t) * (4*np.exp(t) - 2)
+    # return np.exp(-5*t) * (4*np.exp(t) - 2)
     # return np.cos(t)
 
 x0 = x_t(0)
 T = 1
-dt = 0.01
+dt = 0.1
 Nt = math.floor(T/dt)
 
 def forward_euler(f, Nt, x0):
@@ -178,10 +175,10 @@ trap_slope, trap_intercept, trap_r_value, _, _ = stats.linregress(h_log, trap_er
 heun_slope, heun_intercept, heun_r_value, _, _ = stats.linregress(h_log, heun_error_log)
 rk4_slope, rk4_intercept, rk4_r_value, _, _ = stats.linregress(h_log, rk4_error_log)
 
-plt.plot(h_log, euler_error_log, color="blue", label=("Euler: Order=" + str(euler_slope)))
-plt.plot(h_log, trap_error_log, color="green", label=("Trapezoid: Order=" + str(trap_slope)))
-plt.plot(h_log, heun_error_log, color="orange", label=("Heun: Order=" + str(heun_slope)))
-plt.plot(h_log, rk4_error_log, color="red", label=("RK4:   Order=" + str(rk4_slope)))
+plt.plot(h_log, euler_error_log, color="blue", label=("Euler: Order=" + str(np.round(euler_slope))))
+plt.plot(h_log, trap_error_log, color="green", label=("Trapezoid: Order=" + str(np.round(trap_slope))))
+plt.plot(h_log, heun_error_log, color="orange", label=("Heun: Order=" + str(np.round(heun_slope))))
+plt.plot(h_log, rk4_error_log, color="red", label=("RK4:   Order=" + str(np.round(rk4_slope))))
 plt.ylabel("log(error)")
 plt.xlabel("log(h)")
 plt.legend()
