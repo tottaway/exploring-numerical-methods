@@ -52,11 +52,11 @@ def wave(Nt, Nx, Ny, U0):
         def calc_Uyy(U_1):
             res = np.zeros((Nx, Ny))
         
-            curr_slice = U_1[1:Ny-1, :]
-            forward = U_1[2:Ny, :]
-            backward = U_1[0:Ny-2, :]
+            curr_slice = U_1[:, 1:Ny-1]
+            forward = U_1[:, 2:Ny]
+            backward = U_1[:, 0:Ny-2]
 
-            res[1:Ny-1, :] = (forward - 2*curr_slice + backward) / (dy*dy)
+            res[:, 1:Ny-1] = (forward - 2*curr_slice + backward) / (dy*dy)
 
             return res
         Uyy[t, :, :] = calc_Uyy(U[t-1, :, :])
