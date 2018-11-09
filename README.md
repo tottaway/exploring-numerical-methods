@@ -4,7 +4,9 @@ I was inspired by my math class to explore various methods for computing numeric
 
 ### What I've done so far:
 * Worked through examples on http://hplgit.github.io/num-methods-for-PDEs/doc/pub/diffu/sphinx/index.html and learned more about plotting using numpy and matplotlib.
+* Compared various method for solving ODE's numerically and computed their orders (Explicit Euler, Heun, Trapezoidal method, RK4)
+* Created a simulation of the two dimensional wave equation with options for changing initial conditions, adding periodic forces, and adjusting other various constants
 
 ### What's next:
-* My next step is to read through this article, http://www.math.mcgill.ca/gantumur/docs/reps/RyanSicilianoHH.pdf, and implement the techniques discussed there in python.
-* Learning about 3-D plotting/numerical solutions to 2-d wave equation
+* Implementing a predictor-correct method for solving ordinary differential equations.
+* Look into of differential equations

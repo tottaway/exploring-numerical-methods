@@ -11,7 +11,8 @@ About this file:
 Runs two simulations of one-dimensional heat diffusion and plots an animation of
 heat v. displacement along a rod as it changes over time. The first animation used
 an explicit/forward Euler scheme to approximate the state while the second uses
-an implicit/backwards Euler scheme.
+an implicit/backwards Euler scheme. Note that the explicit Euler is far more prone
+to noise.
 
 Things to explore:
 * Change initial condition function

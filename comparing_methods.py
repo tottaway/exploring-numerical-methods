@@ -22,25 +22,25 @@ import math
 def dx_dt(x, t):
     """Derivative of x with respect to time"""
     # return 1
-    return x
+    # return x
     # return -5*x
     # return 2*x*t
     # return 6 * t**5
     # return 2*np.exp(-5*t) - 4*x
-    # return -np.sin(t)
+    return -np.sin(t)
 
 def x_t(t):
     # return t
-    return np.exp(t)
+    # return np.exp(t)
     # return np.exp(-5*t)
     # return np.exp(t**2)
     # return t**6
     # return np.exp(-5*t) * (4*np.exp(t) - 2)
-    # return np.cos(t)
+    return np.cos(t)
 
 x0 = x_t(0)
-T = 1
-dt = 0.1
+T = 6
+dt = 0.3
 Nt = math.floor(T/dt)
 
 def forward_euler(f, Nt, x0):
@@ -142,7 +142,7 @@ plt.show()
 plt.figure()
 plt.title("Error")
 
-Nh = 100
+Nh = 30
 h = np.logspace(-3, -1, Nh)
 
 euler_error = np.zeros(Nh)
@@ -158,10 +158,10 @@ for i, dt in enumerate(h):
     heun_res = heun(dx_dt, Nt, x0)
     rk = rk4(dx_dt, Nt, x0)
 
-    euler_error[i] = np.mean(np.abs(euler-exact))
-    trap_error[i] = np.mean(np.abs(trap-exact))
-    heun_error[i] = np.mean(np.abs(heun_res-exact))
-    rk4_error[i] = np.mean(np.abs(rk-exact))
+    euler_error[i] = np.max(np.abs(euler-exact))
+    trap_error[i] = np.max(np.abs(trap-exact))
+    heun_error[i] = np.max(np.abs(heun_res-exact))
+    rk4_error[i] = np.max(np.abs(rk-exact))
 
 # calculate log values
 euler_error_log = np.log10(euler_error)
@@ -175,10 +175,10 @@ trap_slope, trap_intercept, trap_r_value, _, _ = stats.linregress(h_log, trap_er
 heun_slope, heun_intercept, heun_r_value, _, _ = stats.linregress(h_log, heun_error_log)
 rk4_slope, rk4_intercept, rk4_r_value, _, _ = stats.linregress(h_log, rk4_error_log)
 
-plt.plot(h_log, euler_error_log, color="blue", label=("Euler: Order=" + str(np.round(euler_slope))))
-plt.plot(h_log, trap_error_log, color="green", label=("Trapezoid: Order=" + str(np.round(trap_slope))))
-plt.plot(h_log, heun_error_log, color="orange", label=("Heun: Order=" + str(np.round(heun_slope))))
-plt.plot(h_log, rk4_error_log, color="red", label=("RK4:   Order=" + str(np.round(rk4_slope))))
+plt.plot(h_log, euler_error_log, color="blue", label=("Euler: Order=" + str(np.round(euler_slope, 2))))
+plt.plot(h_log, trap_error_log, color="green", label=("Trapezoid: Order=" + str(np.round(trap_slope, 2))))
+plt.plot(h_log, heun_error_log, color="orange", label=("Heun: Order=" + str(np.round(heun_slope, 2))))
+plt.plot(h_log, rk4_error_log, color="red", label=("RK4:   Order=" + str(np.round(rk4_slope, 2))))
 plt.ylabel("log(error)")
 plt.xlabel("log(h)")
 plt.legend()
