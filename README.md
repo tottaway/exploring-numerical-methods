@@ -9,4 +9,4 @@ I was inspired by my math class to explore various methods for computing numeric
 
 ### What's next:
 * Implementing a predictor-correct method for solving ordinary differential equations.
-* Look into of differential equations
+* Look into other differential equations
