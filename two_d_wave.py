@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.animation import FuncAnimation
-
+from tqdm import tqdm
 """
 About this file:
 Runs a simulation of the wave equation in two dimensions
@@ -17,12 +17,12 @@ Things to explore:
 * Change c which corresponds to wave speed (raises instabillity)
 * Raise and lower Nt to examine stabilty of solutions
 """
-c = 0.25
-T = 1
+c = 0.005
+T = 45
 X, Y = 4, 4
 
-Nt = 1800
-time_chunks = int(T*90)                 # number of frames computed
+Nt = 3500
+time_chunks = int(T*2)                 # number of frames computed
 time_chunk_size = int(Nt/time_chunks)   # time steps to compute each frame
 Nx = X * 35 
 Ny = Y * 35
@@ -43,11 +43,7 @@ hold_boundary_at_zero = True
 def Utt(Uxx, Uyy, t):
     """Wave equation: set time dependent forces using 'force' matrix"""
     force = np.zeros((Nx, Ny))
-    # force[int(Nx/2), int(Ny/2)] = 100*np.cos(t)+200*np.cos(t/4)
-    force[int(Nx/4), int(Ny/4)] = 150*np.cos(1.25*t)
-    # force[int(3*Nx/4), int(Ny/4)] = 50*np.cos(t)
-    # force[int(Nx/4), int(3*Ny/4)] = 50*np.cos(t)
-    # force[int(3*Nx/4), int(3*Ny/4)] = 50*np.cos(t)
+    force[int(3*Nx/4), int(3*Ny/4)] = 0.1*np.cos(t)
     return c**2 * (Uxx + Uyy) + force
 
 def calc_Uxx(U_1):
@@ -81,7 +77,7 @@ def wave(Nt, Nx, Ny, U0, boundary):
     Ut = np.zeros((time_chunks, Nx, Ny))
 
     # step through time and compute frames to be displayed
-    for time_chunk in range(1, time_chunks):
+    for time_chunk in tqdm(range(1, time_chunks)):
         U_curr = np.zeros((time_chunk_size, Nx, Ny))
         Uxx = np.zeros((time_chunk_size, Nx, Ny))
         Uyy = np.zeros((time_chunk_size, Nx, Ny))
@@ -92,8 +88,11 @@ def wave(Nt, Nx, Ny, U0, boundary):
         
         for t in range(1, time_chunk_size):
             Ut_1 = Ut_curr[t-1, :, :]
+
             midpoint = U_curr[t-1, :, :] + Ut_1*0.5*dt
-            Utt_k2 = Utt(calc_Uxx(midpoint), calc_Uyy(midpoint), time_chunk)
+            curr_time = (time_chunk*time_chunk_size + t)/(Nt/T)  
+            Utt_k2 = Utt(calc_Uxx(midpoint), calc_Uyy(midpoint), curr_time)
+
             Ut_curr[t, :, :] = dt * (Utt_k2) + Ut_1
             U_curr[t, :, :] = U_curr[t-1, :, :] + dt * Ut_curr[t, :, :]
 
@@ -106,10 +105,6 @@ def wave(Nt, Nx, Ny, U0, boundary):
         U[time_chunk, :, :] = U_curr[-1, :, :]
         Ut[time_chunk, :, :] = Ut_curr[-1, :, :]
 
-        # print which time step it is on and the height of the element
-        # at the midpoint for earlier detection of unstable solutions
-        print(time_chunk, U[time_chunk, int(Nx/2), int(Ny/2)])
-    
 
     # create animation
     fig = plt.figure()
@@ -127,7 +122,6 @@ def wave(Nt, Nx, Ny, U0, boundary):
         Z = U[t, :, :]
         surface = ax.plot_surface(X_values, Y_values, Z, cmap="Blues", linewidth=10,
           antialiased=False)
-        print(t, np.sum(np.sum(Z-U[t-1, :, :])))
         plt.pause(.0001)
 
 
