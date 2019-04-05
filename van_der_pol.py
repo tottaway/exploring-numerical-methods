@@ -107,7 +107,9 @@ def run(time_chunks, time_chunk_size, system, dt, spawn_interval, spawn_batches)
 
 def get_data(state):
     """Get state to be plotted"""
-    x, y = [], []
+    global x, y
+    if not show_trails:
+        x, y = [], []
     for point in state:
         x.append(point.position[0])
         y.append(point.position[1])
@@ -129,7 +131,7 @@ if __name__ == "__main__":
 
     time_dilation = 1/500 # view function on different time scales
     dt = time_dilation * T/time_chunk_size
-
+    
 
 
     fig, ax = plt.subplots()
@@ -138,10 +140,11 @@ if __name__ == "__main__":
     plt.ylabel("Y")
     plt.xlim(-X/2, X/2)
     plt.ylim(-Y/2, Y/2)
+    show_trails = True
      
-    data = run(time_chunks, time_chunk_size, van_der_pol, dt, 50, 1)
+    data = run(time_chunks, time_chunk_size, pendulum, dt, 50, 1)
     x, y = [], []
-    scat, = ax.plot(x, y, marker="o", ls="", alpha=0.25)
+    scat, = ax.plot(x, y, marker="o", ls="", color="black", alpha=0.25)
     ani = FuncAnimation(fig, update, frames=time_chunks, interval=10)
     plt.show()
 
