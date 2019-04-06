@@ -199,7 +199,7 @@ if __name__ == "__main__":
 
 
     fig = plt.figure()
-    show_trails = False
+    show_trails = True
      
     three_d = True
     data = run(time_chunks, time_chunk_size, strange_attractor, dt, 50, 1, three_d)
@@ -212,10 +212,12 @@ if __name__ == "__main__":
         ax.set_zlabel("Z")
         ax.set_xlim(-X/2, X/2)
         ax.set_ylim(-Y/2, Y/2)
-        ax.set_zlim(-Z/2, Z/2)
+        #ax.set_zlim(-Z/2, Z/2)
+        ax.set_zlim(0, Z)
+        ax.invert_zaxis()
 
         x, y, z = [], [], []
-        scat, = ax.plot(x, y, z, ls=" ", marker="o", color="black", alpha=0.5)
+        scat, = ax.plot(x, y, z, ls=" ", marker="o", markersize=1, color="black", alpha=0.05)
         ani = FuncAnimation(fig, update_three_d, frames=time_chunks, interval=10)
     else:
         ax = fig.add_subplot(111, projection='2d')
