@@ -125,4 +125,5 @@ def wave(Nt, Nx, Ny, U0, boundary):
         plt.pause(.0001)
 
 
-wave(Nt, Nx, Ny, initial_cond, hold_boundary_at_zero)
+if __name__=="__main__":
+    wave(Nt, Nx, Ny, initial_cond, hold_boundary_at_zero)
